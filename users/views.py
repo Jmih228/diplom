@@ -21,6 +21,8 @@ class UserCreateAPIView(generics.CreateAPIView):
         password = serializer.data['password']
         user = CustomUser.objects.get(pk=serializer.data['id'])
         user.set_password(password)
+        user.is_active = False
+        user.save()
 
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 

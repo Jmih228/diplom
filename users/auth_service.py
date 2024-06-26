@@ -29,5 +29,8 @@ class Authentication(authentication.BaseAuthentication):
         if user.invite_code is None:
             user.invite_code = ''.join([choice(printable.replace(printable[-15], '')[:-6]) for _ in range(6)])
             user.save()
+        if not user.is_active:
+            user.is_active = True
+            user.save()
 
         return user, None
