@@ -20,16 +20,3 @@ class CustomUser(AbstractUser):
 
     def __str__(self):
         return self.email
-
-
-class InviteCode(models.Model):
-
-    value = models.CharField(max_length=6, verbose_name='Значение invite code')
-    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, verbose_name='Владелец инвайт кода')
-
-    class Meta:
-        verbose_name = 'Invite code'
-        verbose_name_plural = 'Invite codes'
-
-    def __str__(self):
-        return self.value

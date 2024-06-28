@@ -1,9 +1,9 @@
 from rest_framework.response import Response
-from users.serializers import CustomUserSerializer, InviteCodeSerializer
-from rest_framework import generics, status, authentication, exceptions
+from users.serializers import CustomUserSerializer
+from rest_framework import generics, status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.serializers import ValidationError
-from users.models import CustomUser, InviteCode
+from users.models import CustomUser
 from random import choice
 from string import printable
 from time import sleep
@@ -18,7 +18,7 @@ class UserCreateAPIView(generics.CreateAPIView):
         self.perform_create(serializer)
         headers = self.get_success_headers(serializer.data)
 
-        password = serializer.data['password']
+        password = request.data['password']
         user = CustomUser.objects.get(pk=serializer.data['id'])
         user.set_password(password)
         user.is_active = False
@@ -33,22 +33,27 @@ class UserUpdateAPIView(generics.UpdateAPIView):
     permission_classes = [IsAuthenticated]
 
     def put(self, request, *args, **kwargs):
-        try:
-            user = CustomUser.objects.get(invite_code=request.data['invite_code'])
-        except CustomUser.DoesNotExist:
-            raise ValidationError('Пользователя с таким инвайт кодом не существует')
-        except KeyError:
-            raise ValidationError('Неверно передан инвайт код')
+
+        if request.data.get('invite_code'):
+            try:
+                if request.data.get('invite_code'):
+                    user = CustomUser.objects.get(invite_code=request.user.invite_code)
+            except CustomUser.DoesNotExist:
+                raise ValidationError('Пользователя с таким инвайт кодом не существует')
+            except KeyError:
+                raise ValidationError('Запрос составлен неверно')
 
         return self.update(request, *args, **kwargs)
 
     def patch(self, request, *args, **kwargs):
-        try:
-            user = CustomUser.objects.get(invite_code=request.data['invite_code'])
-        except CustomUser.DoesNotExist:
-            raise ValidationError('Пользователя с таким инвайт кодом не существует')
-        except KeyError:
-            raise ValidationError('Неверно передан инвайт код')
+
+        if request.data.get('invite_code'):
+            try:
+                user = CustomUser.objects.get(invite_code=request.user.invite_code)
+            except CustomUser.DoesNotExist:
+                raise ValidationError('Пользователя с таким инвайт кодом не существует')
+            except KeyError:
+                raise ValidationError('Запрос составлен неверно')
 
         return self.partial_update(request, *args, **kwargs)
 

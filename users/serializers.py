@@ -1,5 +1,5 @@
 from rest_framework.serializers import ModelSerializer, SerializerMethodField
-from users.models import CustomUser, InviteCode
+from users.models import CustomUser
 
 
 class CustomUserSerializer(ModelSerializer):
@@ -12,10 +12,3 @@ class CustomUserSerializer(ModelSerializer):
 
     def get_invited_users(self, instance):
         return [user.phone_number for user in CustomUser.objects.filter(invite_code=instance.invite_code)]
-
-
-class InviteCodeSerializer(ModelSerializer):
-
-    class Meta:
-        model = InviteCode
-        fields = '__all__'
